@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgSpeak - Add Procurement</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #00B894, #00A085);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .title {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            font-size: 1em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        
+        .btn {
+            background: white;
+            color: #00B894;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .status {
+            margin-top: 20px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🌾 AgSpeak</div>
+        <div class="title">Add Procurement</div>
+        <div class="subtitle">Opening AgSpeak app to add procurement details...</div>
+        
+        <div id="loading-status" class="status">
+            <div class="loading"></div>
+            Attempting to open app...
+        </div>
+        
+        <div id="install-prompt" class="hidden">
+            <div class="subtitle">AgSpeak app is not installed on your device.</div>
+            <a href="https://play.google.com/store/apps/details?id=com.agspeak.agspert" 
+               class="btn" 
+               target="_blank">
+                Install from Play Store
+            </a>
+            <div class="status">
+                After installing, scan the QR code again to add procurement directly.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to attempt opening the app
+        function attemptAppOpen() {
+            const deepLinkUrl = 'agspeak://procurement/add';
+            const startTime = Date.now();
+            
+            // Try to open the app
+            window.location.href = deepLinkUrl;
+            
+            // Set a timeout to check if the app opened
+            setTimeout(() => {
+                // If we're still on this page after 3 seconds, assume app is not installed
+                if (Date.now() - startTime > 2500) {
+                    showInstallPrompt();
+                }
+            }, 3000);
+            
+            // Also listen for visibility change (when user comes back to browser)
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden && Date.now() - startTime > 1000) {
+                    // User came back to browser, app likely not installed
+                    showInstallPrompt();
+                }
+            });
+            
+            // Listen for focus/blur events
+            let blurred = false;
+            window.addEventListener('blur', () => {
+                blurred = true;
+            });
+            
+            setTimeout(() => {
+                if (!blurred) {
+                    showInstallPrompt();
+                }
+            }, 2000);
+        }
+        
+        // Function to show install prompt
+        function showInstallPrompt() {
+            document.getElementById('loading-status').classList.add('hidden');
+            document.getElementById('install-prompt').classList.remove('hidden');
+        }
+        
+        // Start the process when page loads
+        window.addEventListener('load', () => {
+            setTimeout(attemptAppOpen, 500);
+        });
+        
+        // Also handle if user navigates directly to this page
+        if (document.readyState === 'complete') {
+            setTimeout(attemptAppOpen, 500);
+        }
+    </script>
+</body>
+</html>
